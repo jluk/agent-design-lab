@@ -9,7 +9,7 @@
   <body>
     <main class="shell">
       <section class="hero">
-        <p class="eyebrow">Agent Interview Lab</p>
+        <p class="eyebrow">Agent Systems Playground</p>
         <h1>Agent Design Lab</h1>
         <p class="lede">
           A playful agent system for reading discourse, showing its work, and
@@ -32,6 +32,83 @@
           <button data-topic="RAG">RAG</button>
           <button data-topic="startup drama">startup drama</button>
           <button data-topic="voice">voice</button>
+        </div>
+      </section>
+
+      <section class="panel system-panel">
+        <div class="panel-head">
+          <h2>Interactive System Map</h2>
+          <span class="panel-kicker">Click a stage to inspect its effect</span>
+        </div>
+        <div class="system-layout">
+          <div class="flowchart" aria-label="Flowchart of the agent system">
+            <button class="flow-step is-active" data-stage="input" type="button">
+              <span class="flow-step-number">1</span>
+              <h3>Topic Input</h3>
+              <p>The user asks about a topic like AI agents or RAG.</p>
+            </button>
+            <div class="flow-arrow" aria-hidden="true">→</div>
+            <button class="flow-step" data-stage="planner" type="button">
+              <span class="flow-step-number">2</span>
+              <h3>Planner</h3>
+              <p>The system expands the topic into subthemes and success criteria.</p>
+            </button>
+            <div class="flow-arrow" aria-hidden="true">→</div>
+            <button class="flow-step" data-stage="retrieval" type="button">
+              <span class="flow-step-number">3</span>
+              <h3>Retriever</h3>
+              <p>Relevant posts are ranked with keyword, tag, and recency signals.</p>
+            </button>
+            <div class="flow-arrow" aria-hidden="true">→</div>
+            <button class="flow-step" data-stage="clustering" type="button">
+              <span class="flow-step-number">4</span>
+              <h3>Clustering</h3>
+              <p>Retrieved evidence is grouped into themes like guardrails or observability.</p>
+            </button>
+            <div class="flow-arrow" aria-hidden="true">→</div>
+            <button class="flow-step" data-stage="interpreter" type="button">
+              <span class="flow-step-number">5</span>
+              <h3>Interpreter</h3>
+              <p>The report turns evidence into archetypes, notable takes, and a summary.</p>
+            </button>
+            <div class="flow-arrow" aria-hidden="true">→</div>
+            <button class="flow-step" data-stage="critic" type="button">
+              <span class="flow-step-number">6</span>
+              <h3>Critic</h3>
+              <p>The critic checks grounding, generic phrasing, and evidence coverage.</p>
+            </button>
+          </div>
+
+          <div class="system-why">
+            <div class="why-intro">
+              <h3 id="stage-title">Topic Input sets the search direction</h3>
+              <p id="stage-description">
+                A narrow query produces a focused report. A fuzzy query makes the rest of the
+                pipeline work harder because every downstream stage inherits the ambiguity.
+              </p>
+            </div>
+
+            <div class="stage-effects">
+              <div class="metric-card">
+                <p class="metric-label">Primary metrics affected</p>
+                <div id="stage-metrics" class="metric-stack"></div>
+              </div>
+              <div class="metric-card">
+                <p class="metric-label">Why it matters</p>
+                <p id="stage-why-copy"></p>
+              </div>
+              <div class="metric-card">
+                <p class="metric-label">If this stage is weak</p>
+                <p id="stage-risk-copy"></p>
+              </div>
+              <div class="metric-card">
+                <p class="metric-label">Connected trace step</p>
+                <p id="stage-trace-copy"></p>
+              </div>
+            </div>
+
+            <div class="why-grid" id="impact-grid"></div>
+          </div>
         </div>
       </section>
 
