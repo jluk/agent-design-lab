@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agent Design Lab</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <p class="eyebrow">Agent Interview Lab</p>
+        <h1>Agent Design Lab</h1>
+        <p class="lede">
+          A playful agent system for reading discourse, showing its work, and
+          improving through evals.
+        </p>
+
+        <form id="query-form" class="query-bar">
+          <input
+            id="topic-input"
+            name="topic"
+            type="text"
+            value="AI agents"
+            placeholder="Try AI agents, RAG, startup drama..."
+          />
+          <button type="submit">Run Report</button>
+        </form>
+
+        <div class="quick-picks">
+          <button data-topic="AI agents">AI agents</button>
+          <button data-topic="RAG">RAG</button>
+          <button data-topic="startup drama">startup drama</button>
+          <button data-topic="voice">voice</button>
+        </div>
+      </section>
+
+      <section class="grid">
+        <article class="panel" id="report-panel">
+          <div class="panel-head">
+            <h2>Agent Report</h2>
+            <span id="critic-pill" class="pill">Waiting</span>
+          </div>
+          <div id="report-content" class="report-content"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Trace</h2>
+          </div>
+          <div id="trace-content" class="trace"></div>
+        </article>
+      </section>
+
+      <section class="grid secondary">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Retrieved Posts</h2>
+          </div>
+          <div id="posts-content" class="posts"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Offline Evals</h2>
+            <button id="eval-button" class="ghost">Run</button>
+          </div>
+          <div id="eval-content" class="evals"></div>
+        </article>
+      </section>
+    </main>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

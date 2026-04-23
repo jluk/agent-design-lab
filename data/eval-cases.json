@@ -1,0 +1,20 @@
+[
+  {
+    "id": "ev1",
+    "topic": "AI agents",
+    "expectedThemes": ["guardrails", "observability", "architecture"],
+    "requiredPostIds": ["p2", "p9", "p10"]
+  },
+  {
+    "id": "ev2",
+    "topic": "RAG",
+    "expectedThemes": ["knowledge", "staleness", "evaluation"],
+    "requiredPostIds": ["p3", "p4", "p12"]
+  },
+  {
+    "id": "ev3",
+    "topic": "startup drama",
+    "expectedThemes": ["hype", "enterprise", "satire"],
+    "requiredPostIds": ["p5", "p11", "p15"]
+  }
+]

@@ -1,0 +1,122 @@
+[
+  {
+    "id": "p1",
+    "author": "infra_ivy",
+    "timestamp": "2026-04-23T13:30:00Z",
+    "likes": 312,
+    "content": "Everyone says they want agentic workflows until they have to debug tool retries, missing state, and stale knowledge. The demo is five minutes. The incident review is forever.",
+    "tags": ["ai agents", "reliability", "tooling"]
+  },
+  {
+    "id": "p2",
+    "author": "product_pam",
+    "timestamp": "2026-04-23T12:42:00Z",
+    "likes": 287,
+    "content": "The strongest AI products right now are not general assistants. They are focused operators with guardrails, business context, and one job to be done.",
+    "tags": ["ai agents", "product", "guardrails"]
+  },
+  {
+    "id": "p3",
+    "author": "founder_frank",
+    "timestamp": "2026-04-23T11:18:00Z",
+    "likes": 194,
+    "content": "RAG is just your org chart in disguise. Somebody always says the answer is in a doc, and then retrieval finds a policy page from two reorgs ago.",
+    "tags": ["rag", "knowledge", "startup drama"]
+  },
+  {
+    "id": "p4",
+    "author": "eval_erin",
+    "timestamp": "2026-04-23T11:02:00Z",
+    "likes": 404,
+    "content": "Prompt iteration without evals is astrology for engineers. If you cannot compare versions on failure cases, you are just renaming vibes as progress.",
+    "tags": ["evals", "ai agents", "testing"]
+  },
+  {
+    "id": "p5",
+    "author": "vc_vince",
+    "timestamp": "2026-04-23T10:40:00Z",
+    "likes": 155,
+    "content": "Every deck says autonomous agents. Every roadmap says human-in-the-loop. Markets crave magic. Operators crave escalation paths.",
+    "tags": ["startup drama", "ai agents", "vc"]
+  },
+  {
+    "id": "p6",
+    "author": "ml_mira",
+    "timestamp": "2026-04-23T09:55:00Z",
+    "likes": 226,
+    "content": "The hard part of voice agents is not transcription anymore. It is timing, recovery, and knowing when a polite interruption feels helpful instead of cursed.",
+    "tags": ["voice", "ai agents", "ux"]
+  },
+  {
+    "id": "p7",
+    "author": "design_dex",
+    "timestamp": "2026-04-23T08:12:00Z",
+    "likes": 178,
+    "content": "People keep calling tone a layer you add later. Tone is policy. Tone decides whether the same answer sounds premium, robotic, or evasive.",
+    "tags": ["brand", "customer experience", "ux"]
+  },
+  {
+    "id": "p8",
+    "author": "skeptic_sam",
+    "timestamp": "2026-04-22T23:30:00Z",
+    "likes": 290,
+    "content": "If your agent needs six hidden prompts, four classifiers, and a prayer circle to refund a package, maybe what you built is a haunted flowchart.",
+    "tags": ["ai agents", "skepticism", "humor"]
+  },
+  {
+    "id": "p9",
+    "author": "ops_olivia",
+    "timestamp": "2026-04-22T22:08:00Z",
+    "likes": 245,
+    "content": "Teams underestimate how much value comes from the trace, not just the answer. The moment support can see why the model escalated, trust goes up.",
+    "tags": ["observability", "customer experience", "ai agents"]
+  },
+  {
+    "id": "p10",
+    "author": "agent_ali",
+    "timestamp": "2026-04-22T20:41:00Z",
+    "likes": 301,
+    "content": "A useful customer agent is part concierge, part compliance engine, part search system, and part escalation router. Single prompt demos hide the real architecture.",
+    "tags": ["customer experience", "architecture", "ai agents"]
+  },
+  {
+    "id": "p11",
+    "author": "growth_gia",
+    "timestamp": "2026-04-22T18:10:00Z",
+    "likes": 137,
+    "content": "Startup Twitter moved from 'agents replace SaaS' to 'agents make SaaS sticky' in about one quarter. Amazing what one enterprise security review can do.",
+    "tags": ["startup drama", "enterprise", "ai agents"]
+  },
+  {
+    "id": "p12",
+    "author": "research_raj",
+    "timestamp": "2026-04-22T17:26:00Z",
+    "likes": 267,
+    "content": "Benchmarks are finally catching up to the real world: knowledge retrieval, voice, and multi-turn success. We got tired of grading pretty transcripts for tasks no customer has.",
+    "tags": ["evals", "voice", "knowledge"]
+  },
+  {
+    "id": "p13",
+    "author": "pm_priya",
+    "timestamp": "2026-04-22T15:09:00Z",
+    "likes": 188,
+    "content": "The best agent projects are narrow and opinionated. I learn more from a weird, scoped prototype with crisp tradeoffs than from another generic AI workspace clone.",
+    "tags": ["product", "ai agents", "scope"]
+  },
+  {
+    "id": "p14",
+    "author": "support_sage",
+    "timestamp": "2026-04-22T12:47:00Z",
+    "likes": 211,
+    "content": "Escalation is not failure. A graceful handoff with context is often the whole product. Users forgive limits. They do not forgive being trapped.",
+    "tags": ["customer experience", "handoff", "guardrails"]
+  },
+  {
+    "id": "p15",
+    "author": "sarcastic_syd",
+    "timestamp": "2026-04-22T10:04:00Z",
+    "likes": 163,
+    "content": "We are one funding cycle away from somebody pitching 'tasteful orchestration' as if we did not all spend last year rediscovering if-statements with embeddings.",
+    "tags": ["startup drama", "humor", "orchestration"]
+  }
+]
