@@ -14,6 +14,14 @@ const stageWhyCopy = document.querySelector("#stage-why-copy");
 const stageRiskCopy = document.querySelector("#stage-risk-copy");
 const stageTraceCopy = document.querySelector("#stage-trace-copy");
 const impactGrid = document.querySelector("#impact-grid");
+const simulatorChecks = [...document.querySelectorAll("#sim-toggle-grid input[type='checkbox']")];
+const simResetButton = document.querySelector("#sim-reset-button");
+const simScenarioTitle = document.querySelector("#sim-scenario-title");
+const simScenarioSummary = document.querySelector("#sim-scenario-summary");
+const simMetricGrid = document.querySelector("#sim-metric-grid");
+const simEvidenceSummary = document.querySelector("#sim-evidence-summary");
+const simReportSummary = document.querySelector("#sim-report-summary");
+const simConsequences = document.querySelector("#sim-consequences");
 
 const stageGuide = {
   input: {
@@ -132,17 +140,80 @@ const stageGuide = {
   }
 };
 
+const simulatorGuide = {
+  planner: {
+    label: "Planner",
+    penalties: { themeCoverage: 18, specificity: 8, overall: 10, evidenceCount: 1, clusterCount: 1 },
+    reportEffects: [
+      "The report will cover fewer adjacent ideas because the search space narrows early.",
+      "Expected theme hits drop first because the retriever sees fewer useful facets."
+    ],
+    symptoms: [
+      { title: "Narrow retrieval surface", body: "The run becomes more dependent on exact wording, so the system misses related posts that use different language." },
+      { title: "Less resilient topic coverage", body: "The report may sound focused, but it will likely skip important subthemes like handoff, evals, or observability." }
+    ]
+  },
+  retrieval: {
+    label: "Retrieval",
+    penalties: { themeCoverage: 24, groundedness: 26, specificity: 10, overall: 18, evidenceCount: 3, clusterCount: 1 },
+    reportEffects: [
+      "The report becomes less anchored because the evidence pool is thinner.",
+      "Groundedness drops sharply when the retriever misses representative posts."
+    ],
+    symptoms: [
+      { title: "Evidence quality collapses", body: "The interpreter has fewer strong examples, so every downstream step becomes less trustworthy." },
+      { title: "Eval misses increase", body: "Required post hits are the first thing to break because the eval suite directly checks whether critical evidence was found." }
+    ]
+  },
+  clustering: {
+    label: "Clustering",
+    penalties: { themeCoverage: 12, groundedness: 4, specificity: 18, overall: 10, evidenceCount: 0, clusterCount: 2 },
+    reportEffects: [
+      "The output feels more list-like and less pattern-oriented.",
+      "Specificity falls because the report has trouble organizing evidence into reusable themes."
+    ],
+    symptoms: [
+      { title: "Themes get noisy", body: "Related posts no longer reinforce each other cleanly, which makes the report feel fragmented." },
+      { title: "Archetypes feel arbitrary", body: "Without clean theme groupings, the interpreter has weaker structure to build meaningful categories from." }
+    ]
+  },
+  interpreter: {
+    label: "Interpreter",
+    penalties: { themeCoverage: 8, groundedness: 10, specificity: 24, overall: 16, evidenceCount: 0, clusterCount: 0 },
+    reportEffects: [
+      "The final explanation becomes more generic even if the evidence underneath is still decent.",
+      "This is the fastest way to make the app feel less insightful without changing retrieval itself."
+    ],
+    symptoms: [
+      { title: "Bland output", body: "The report starts sounding safe and polished instead of precise and memorable." },
+      { title: "Evidence is underused", body: "Good posts may still be retrieved, but the output fails to translate them into strong observations." }
+    ]
+  },
+  critic: {
+    label: "Critic",
+    penalties: { themeCoverage: 2, groundedness: 8, specificity: 6, overall: 12, evidenceCount: 0, clusterCount: 0, criticSafety: 42 },
+    reportEffects: [
+      "Weak runs are less likely to be flagged before the user reads them.",
+      "The visible answer looks more confident even though the quality gate is weaker."
+    ],
+    symptoms: [
+      { title: "Regression detection weakens", body: "The system loses its best built-in warning signal for unsupported or overly generic outputs." },
+      { title: "Confidence outpaces quality", body: "Users see a complete answer, but the app provides less help distinguishing strong runs from weak ones." }
+    ]
+  }
+};
+
 let activeStageId = "input";
 let currentRunData = null;
 
 function renderReport(report) {
   return `
-    <section class="report-block">
-      <h3>Summary</h3>
+    <section class="report-block report-card">
+      <p class="metric-label">Summary</p>
       <p>${report.summary}</p>
     </section>
-    <section class="report-block">
-      <h3>Archetypes</h3>
+    <section class="report-block report-card">
+      <p class="metric-label">Archetypes</p>
       <ul>
         ${report.keyArchetypes
           .map(
@@ -152,8 +223,8 @@ function renderReport(report) {
           .join("")}
       </ul>
     </section>
-    <section class="report-block">
-      <h3>Notable Takes</h3>
+    <section class="report-block report-card">
+      <p class="metric-label">Notable Takes</p>
       <ul>
         ${report.notableTakes
           .map(
@@ -163,15 +234,36 @@ function renderReport(report) {
           .join("")}
       </ul>
     </section>
-    <section class="report-block">
-      <h3>Humor Mode</h3>
-      <p>${report.humorMode}</p>
-    </section>
-    <section class="report-block">
-      <h3>Pitch Parody</h3>
-      <p>${report.startupPitchParody}</p>
+    <section class="report-block report-card split-card">
+      <div>
+        <p class="metric-label">Humor Mode</p>
+        <p>${report.humorMode}</p>
+      </div>
+      <div>
+        <p class="metric-label">Pitch Parody</p>
+        <p>${report.startupPitchParody}</p>
+      </div>
     </section>
   `;
+}
+
+function tracePreview(payload) {
+  if (payload.resultCount) {
+    return `${payload.resultCount} retrieved items`; 
+  }
+  if (payload.clusters) {
+    return `${payload.clusters.length} clusters formed`;
+  }
+  if (payload.notes) {
+    return payload.notes[0];
+  }
+  if (payload.objective) {
+    return payload.objective;
+  }
+  if (payload.summary) {
+    return payload.summary;
+  }
+  return "Expand to inspect payload";
 }
 
 function renderTrace(trace) {
@@ -180,12 +272,18 @@ function renderTrace(trace) {
   return trace
     .map((stage) => {
       const isHighlighted = stage.name === highlightedStage;
+      const openAttr = isHighlighted ? "open" : "";
       return `
-        <article class="trace-item ${isHighlighted ? "is-highlighted" : ""}">
-          <h3>${stage.name}</h3>
-          <p><code>${stage.timestamp}</code></p>
+        <details class="trace-item ${isHighlighted ? "is-highlighted" : ""}" ${openAttr}>
+          <summary class="trace-summary">
+            <div>
+              <h3>${stage.name}</h3>
+              <p>${tracePreview(stage.payload)}</p>
+            </div>
+            <code>${stage.timestamp}</code>
+          </summary>
           <pre>${JSON.stringify(stage.payload, null, 2)}</pre>
-        </article>
+        </details>
       `;
     })
     .join("");
@@ -195,9 +293,9 @@ function renderPosts(posts) {
   return posts
     .map(
       (post) => `
-        <article class="post-card">
+        <article class="post-card source-card">
           <p><strong>${post.author}</strong> <span class="meta">${post.id} · score ${post.retrieval.score}</span></p>
-          <p>${post.content}</p>
+          <blockquote>${post.content}</blockquote>
           <p class="meta">${post.tags.join(" · ")}</p>
         </article>
       `
@@ -207,8 +305,9 @@ function renderPosts(posts) {
 
 function renderEvals(result) {
   return `
-    <article class="eval-card">
-      <p><strong>Average score:</strong> ${result.averageScore}</p>
+    <article class="eval-card spotlight-card">
+      <p class="metric-label">Average suite score</p>
+      <p class="eval-total">${result.averageScore}</p>
     </article>
     ${result.results
       .map(
@@ -274,6 +373,164 @@ function renderStageDetails() {
   }
 }
 
+function activeWeakStages() {
+  return simulatorChecks.filter((input) => input.checked).map((input) => input.value);
+}
+
+function computeBaseMetrics(data) {
+  const themeCoverage = Math.min(100, 38 + data.clusters.length * 14 + data.retrievedPosts.length * 2);
+  const groundedness = data.critic.grounded
+    ? Math.min(96, 74 + Math.round(data.critic.coverageRatio * 20))
+    : 46;
+  const specificity = Math.min(
+    95,
+    48 + data.report.notableTakes.length * 11 + data.report.keyArchetypes.length * 7
+  );
+  const criticSafety = data.critic.passes ? 92 : 54;
+
+  const overall = Math.round(
+    themeCoverage * 0.3 + groundedness * 0.3 + specificity * 0.25 + criticSafety * 0.15
+  );
+
+  return {
+    themeCoverage,
+    groundedness,
+    specificity,
+    criticSafety,
+    overall,
+    evidenceCount: data.retrievedPosts.length,
+    clusterCount: data.clusters.length
+  };
+}
+
+function simulateMetrics(base, weakStages) {
+  const simulated = { ...base };
+  const effects = [];
+  const symptoms = [];
+
+  for (const stageId of weakStages) {
+    const config = simulatorGuide[stageId];
+    if (!config) continue;
+
+    effects.push(...config.reportEffects);
+    symptoms.push(...config.symptoms);
+
+    for (const [metric, penalty] of Object.entries(config.penalties)) {
+      if (metric === "evidenceCount" || metric === "clusterCount") {
+        simulated[metric] = Math.max(1, simulated[metric] - penalty);
+      } else {
+        simulated[metric] = Math.max(8, simulated[metric] - penalty);
+      }
+    }
+  }
+
+  simulated.overall = Math.round(
+    simulated.themeCoverage * 0.3 +
+      simulated.groundedness * 0.3 +
+      simulated.specificity * 0.25 +
+      simulated.criticSafety * 0.15
+  );
+
+  return {
+    simulated,
+    effects: Array.from(new Set(effects)),
+    symptoms
+  };
+}
+
+function metricLabel(metric) {
+  return {
+    themeCoverage: "Theme coverage",
+    groundedness: "Groundedness",
+    specificity: "Specificity",
+    criticSafety: "Critic safety",
+    overall: "Overall score"
+  }[metric];
+}
+
+function renderMetricComparison(base, simulated) {
+  const metricKeys = ["themeCoverage", "groundedness", "specificity", "criticSafety", "overall"];
+
+  return metricKeys
+    .map((metric) => {
+      const delta = simulated[metric] - base[metric];
+      const deltaLabel = delta === 0 ? "0" : `${delta > 0 ? "+" : ""}${delta}`;
+      const deltaClass = delta < 0 ? "negative" : delta > 0 ? "positive" : "neutral";
+
+      return `
+        <article class="metric-card sim-metric-card">
+          <p class="metric-label">${metricLabel(metric)}</p>
+          <div class="sim-metric-head">
+            <strong>${simulated[metric]}%</strong>
+            <span class="sim-delta ${deltaClass}">${deltaLabel}</span>
+          </div>
+          <div class="metric-bar">
+            <div class="metric-bar-fill" style="width: ${simulated[metric]}%"></div>
+          </div>
+          <p class="sim-baseline">Baseline ${base[metric]}%</p>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function renderSimulator() {
+  if (!currentRunData) {
+    simScenarioTitle.textContent = "Healthy pipeline";
+    simScenarioSummary.textContent = "Run the agent once to activate the simulator.";
+    simMetricGrid.innerHTML = "";
+    simEvidenceSummary.innerHTML = "<p>Waiting for a run.</p>";
+    simReportSummary.innerHTML = "<p>Waiting for a run.</p>";
+    simConsequences.innerHTML = "";
+    return;
+  }
+
+  const weakStages = activeWeakStages();
+  const base = computeBaseMetrics(currentRunData);
+  const { simulated, effects, symptoms } = simulateMetrics(base, weakStages);
+
+  if (weakStages.length === 0) {
+    simScenarioTitle.textContent = "Healthy pipeline";
+    simScenarioSummary.textContent =
+      "No weak stages are enabled. This simulator view reflects the current run as-is.";
+  } else {
+    const labels = weakStages.map((stageId) => simulatorGuide[stageId].label);
+    simScenarioTitle.textContent = `Simulated weak points: ${labels.join(" + ")}`;
+    simScenarioSummary.textContent =
+      "The simulator predicts how this run would degrade if the selected components underperformed. It is a learning tool, not a second real execution.";
+  }
+
+  simMetricGrid.innerHTML = renderMetricComparison(base, simulated);
+
+  simEvidenceSummary.innerHTML = `
+    <p><strong>Retrieved evidence:</strong> ${simulated.evidenceCount} posts</p>
+    <p><strong>Theme groups:</strong> ${simulated.clusterCount} clusters</p>
+    <p><strong>Interpretation:</strong> ${weakStages.length === 0 ? "The current run is using the full pipeline." : "The run would likely rely on thinner evidence or weaker structure."}</p>
+  `;
+
+  simReportSummary.innerHTML = effects.length
+    ? `<ul class="sim-list">${effects.map((effect) => `<li>${effect}</li>`).join("")}</ul>`
+    : "<p>No simulated degradation is active.</p>";
+
+  simConsequences.innerHTML = symptoms.length
+    ? symptoms
+        .map(
+          (symptom) => `
+            <article class="why-card">
+              <h3>${symptom.title}</h3>
+              <p>${symptom.body}</p>
+            </article>
+          `
+        )
+        .join("")
+    : `
+      <article class="why-card">
+        <h3>Stable baseline</h3>
+        <p>The current run keeps the planner, retriever, clustering, interpreter, and critic all healthy, so the simulator shows no predicted failure modes.</p>
+      </article>
+    `;
+}
+
 async function loadReport(topic) {
   criticPill.textContent = "Running";
   criticPill.className = "pill";
@@ -291,6 +548,7 @@ async function loadReport(topic) {
   criticPill.textContent = data.critic.passes ? "Critic Pass" : "Critic Warn";
   criticPill.className = `pill ${data.critic.passes ? "pass" : "warn"}`;
   renderStageDetails();
+  renderSimulator();
 }
 
 async function loadEvals() {
@@ -319,7 +577,19 @@ for (const step of flowSteps) {
   });
 }
 
+for (const input of simulatorChecks) {
+  input.addEventListener("change", renderSimulator);
+}
+
+simResetButton.addEventListener("click", () => {
+  for (const input of simulatorChecks) {
+    input.checked = false;
+  }
+  renderSimulator();
+});
+
 evalButton.addEventListener("click", loadEvals);
 
 renderStageDetails();
+renderSimulator();
 await loadReport(topicInput.value);
